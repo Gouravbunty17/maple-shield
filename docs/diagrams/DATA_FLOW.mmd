@@ -1,0 +1,23 @@
+﻿sequenceDiagram
+  autonumber
+  participant Src as Frame Source
+  participant Pre as Preprocess
+  participant Inf as YOLOv8 ONNX
+  participant Post as NMS+Scale
+  participant Trk as Tracker (IoU)
+  participant Vel as Velocity
+  participant Risk as Risk Engine
+  participant Log as JSONL Logger
+  participant Draw as Overlay
+  participant Vid as Video Writer
+
+  Src->>Pre: frame (BGR)
+  Pre->>Inf: tensor (1x3x640x640)
+  Inf->>Post: raw outputs
+  Post->>Trk: det_list[{box, cls, conf, label}]
+  Trk->>Vel: add velocity + confirmed + track_id
+  Vel->>Risk: compute risk (confirmed only)
+  Risk->>Log: write record (frame, infer_ms, dets, max_risk)
+  Risk->>Draw: box color + text label
+  Draw->>Vid: overlay frame
+  Src->>Vid: raw frame (raw.mp4)

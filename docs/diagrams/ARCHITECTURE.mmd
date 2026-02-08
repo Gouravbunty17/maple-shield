@@ -1,0 +1,19 @@
+﻿flowchart LR
+  %% BOREALIS V1 — High-level Architecture
+
+  CAM[Camera /<br/>Video Source] --> PRE[Preprocess<br/>resize + normalize]
+  PRE --> INF[Inference<br/>YOLOv8 ONNX]
+  INF --> POST[Postprocess<br/>NMS + scale]
+  POST --> TRK[Tracking<br/>IoU + smoothing]
+  TRK --> VEL[Velocity<br/>vx, vy, speed]
+  VEL --> RISK[Risk Engine<br/>motion-weighted]
+  RISK --> OVL[Overlay<br/>box + label]
+  OVL --> VID[overlay.mp4]
+
+  CAM --> RAW[raw.mp4]
+  RISK --> LOG[JSONL Logger<br/>detections.jsonl]
+  LOG --> REPLAY[Replay Tool]
+  RAW --> REPLAY
+  REPLAY --> VIEW[Review /<br/>Debug]
+
+  TRK --> LIFE[Lifecycle<br/>lifecycle.json]
