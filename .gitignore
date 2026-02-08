@@ -43,6 +43,12 @@ datasets/seaships/
 *.mp4
 *.avi
 *.mov
+*.jpg
+*.jpeg
+*.png
+
+# Keep documentation diagrams
+!docs/diagrams/*.png
 
 # Keep structure
 !models/.gitkeep
