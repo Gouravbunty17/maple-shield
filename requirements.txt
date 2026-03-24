@@ -1,0 +1,23 @@
+# Maple Shield — Python dependencies
+# Install: pip install -r requirements.txt
+
+# Core detection pipeline
+opencv-python>=4.8.0
+numpy>=1.24.0
+onnxruntime>=1.17.0          # CPU inference (no GPU needed)
+# onnxruntime-gpu>=1.17.0    # Uncomment for CUDA GPU inference
+
+# Model preparation & pruning (optional — for sparse_model_prep.py)
+ultralytics>=8.0.0            # YOLOv8 training + export
+torch>=2.1.0                  # Required for 2:4 sparse pruning
+torchvision>=0.16.0
+
+# Web dashboard & C2 simulator
+flask>=3.0.0
+
+# MQTT alert export (optional — graceful fallback if not installed)
+paho-mqtt>=1.6.1
+
+# Utilities
+tqdm>=4.65.0                  # Progress bars for training
+Pillow>=10.0.0                # Image utilities
