@@ -200,3 +200,4 @@ class IoUTracker:
             "dead_tracks": int(len(self.lifecycle_events)),
             "lifecycle_events": self.lifecycle_events,
         }
+

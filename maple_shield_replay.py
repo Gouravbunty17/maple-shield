@@ -12,7 +12,7 @@ def read_jsonl(path: Path):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python borealis_v1_replay.py runs\\<timestamp>")
+        print("Usage: python maple_shield_replay.py runs\\<timestamp>")
         sys.exit(1)
 
     run_dir = Path(sys.argv[1])
@@ -49,7 +49,7 @@ def main():
                             (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255,255,255), 2)
                 next_log = next(logs, None)
 
-            cv2.imshow("BOREALIS Replay", frame)
+            cv2.imshow("MAPLE SHIELD Replay", frame)
 
         k = cv2.waitKey(20) & 0xFF
         if k == ord("q"):
@@ -62,3 +62,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

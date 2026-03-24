@@ -1,4 +1,4 @@
-﻿# BOREALIS Testing Strategy
+﻿# Maple Shield Testing Strategy
 
 ## Unit Tests
 - NMS post-processing (test with known boxes)
@@ -15,3 +15,5 @@
 
 ## Regression Tests
 - Model swap (does new ONNX maintain performance?)
+
+

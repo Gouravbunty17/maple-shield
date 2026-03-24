@@ -134,3 +134,4 @@ def get_risk_color(risk_state):
         return (0, 165, 255)
     else:
         return (0, 255, 0)
+

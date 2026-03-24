@@ -1,4 +1,4 @@
-﻿# BOREALIS — Arctic Training Data Strategy
+﻿# Maple Shield — Arctic Training Data Strategy
 
 ---
 
@@ -200,7 +200,7 @@ results = model.train(
     save=True
 )
 
-# Export to ONNX for BOREALIS
+# Export to ONNX for Maple Shield
 model.export(format='onnx', simplify=True)
 ```
 
@@ -329,3 +329,5 @@ model.export(format='onnx', simplify=True)
 
 **Last Updated:** 2026-02-08  
 **Status:** Track 3 (augmentation) validated, Tracks 1-2 planned
+
+

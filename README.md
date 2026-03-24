@@ -1,4 +1,4 @@
-﻿# BOREALIS V1
+﻿# Maple Shield V1
 
 **Canadian Sovereign Edge AI Intelligence System**
 
@@ -15,3 +15,5 @@
 **Last Updated:** 2026-02-08
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
+
+

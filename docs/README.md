@@ -1,4 +1,4 @@
-﻿# BOREALIS V1 — Documentation Package
+﻿# Maple Shield V1 — Documentation Package
 
 **Canadian Sovereign Edge AI Intelligence System**  
 **Phase-1 CPU Validation Complete**
@@ -7,7 +7,7 @@
 
 ## Documentation Overview
 
-This package contains complete technical documentation for BOREALIS V1, a computer vision pipeline designed for Arctic sovereignty operations. The system operates without cloud dependencies, processes sensor data entirely on-device, and maintains defense-grade audit trails.
+This package contains complete technical documentation for Maple Shield V1, a computer vision pipeline designed for Arctic sovereignty operations. The system operates without cloud dependencies, processes sensor data entirely on-device, and maintains defense-grade audit trails.
 
 **Current Status:** Phase-1 validated on CPU (Windows 10), ready for Jetson Orin Nano migration.
 
@@ -162,7 +162,7 @@ Start here:
 
 ## Repository Structure
 ```
-borealis/
+maple_shield/
 ├── docs/                           # THIS FOLDER
 │   ├── README.md                   # This file
 │   ├── ARCHITECTURE.md
@@ -170,10 +170,10 @@ borealis/
 │   ├── DEPLOYMENT_GUIDE.md
 │   ├── ARCTIC_DATA_STRATEGY.md
 │   └── ROADMAP.md
-├── borealis_v1_motion_risk.py     # Main pipeline
-├── borealis_tracker_v3.py         # Tracking module
-├── borealis_risk_v2.py            # Risk assessment module
-├── borealis_v1_replay_json.py     # Replay tool
+├── maple_shield_motion_risk.py     # Main pipeline
+├── maple_shield_tracker_v3.py         # Tracking module
+├── maple_shield_risk_v2.py            # Risk assessment module
+├── maple_shield_replay_json.py     # Replay tool
 ├── arctic_augment.py              # Data augmentation
 ├── models/
 │   └── yolov8n.onnx               # Detection model
@@ -187,7 +187,7 @@ borealis/
 
 **Version:** 1.0  
 **Last Updated:** 2026-02-08  
-**Authors:** BOREALIS Development Team
+**Authors:** Maple Shield Development Team
 
 **Update frequency:**
 - After each major milestone (phase completion)
@@ -214,3 +214,5 @@ borealis/
 
 **Export Control:** Consult legal before international distribution  
 **Sovereignty:** System designed for Canadian operational independence
+
+

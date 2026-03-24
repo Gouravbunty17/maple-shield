@@ -1,4 +1,4 @@
-﻿# BOREALIS V1 — Deployment Guide
+﻿# Maple Shield V1 — Deployment Guide
 
 ---
 
@@ -19,13 +19,13 @@
 pip install numpy opencv-python onnxruntime pillow scikit-image
 ```
 
-**2. Download BOREALIS:**
+**2. Download Maple Shield:**
 ```powershell
 git clone <repository-url>
-cd borealis
+cd maple_shield
 ```
 
-Or manually download and extract to `C:\Users\<username>\borealis\`
+Or manually download and extract to `C:\Users\<username>\maple_shield\`
 
 **3. Download YOLOv8n model:**
 ```powershell
@@ -37,7 +37,7 @@ cd ..
 
 **4. Verify installation:**
 ```powershell
-python borealis_v1_motion_risk.py
+python maple_shield_motion_risk.py
 ```
 
 Press 'q' to stop after a few seconds. Check `runs\` directory for output.
@@ -70,8 +70,8 @@ sudo apt install -y python3-venv python3-pip libgl1 libglib2.0-0
 
 **3. Create project directory:**
 ```bash
-mkdir -p ~/borealis
-cd ~/borealis
+mkdir -p ~/maple_shield
+cd ~/maple_shield
 ```
 
 **4. Create virtual environment:**
@@ -107,11 +107,11 @@ pip install onnxruntime-gpu
 
 From Windows PowerShell:
 ```powershell
-scp borealis_v1_motion_risk.py <username>@<jetson-ip>:~/borealis/
-scp borealis_tracker_v3.py <username>@<jetson-ip>:~/borealis/
-scp borealis_risk_v2.py <username>@<jetson-ip>:~/borealis/
-scp borealis_v1_replay_json.py <username>@<jetson-ip>:~/borealis/
-scp models\yolov8n.onnx <username>@<jetson-ip>:~/borealis/models/
+scp maple_shield_motion_risk.py <username>@<jetson-ip>:~/maple_shield/
+scp maple_shield_tracker_v3.py <username>@<jetson-ip>:~/maple_shield/
+scp maple_shield_risk_v2.py <username>@<jetson-ip>:~/maple_shield/
+scp maple_shield_replay_json.py <username>@<jetson-ip>:~/maple_shield/
+scp models\yolov8n.onnx <username>@<jetson-ip>:~/maple_shield/models/
 ```
 
 **8. Test camera:**
@@ -121,12 +121,12 @@ python3 -c "import cv2; cap = cv2.VideoCapture(0); print('Camera:', cap.isOpened
 
 **9. Run pipeline (CPU baseline):**
 ```bash
-python3 borealis_v1_motion_risk.py
+python3 maple_shield_motion_risk.py
 ```
 
 **10. Enable GPU acceleration:**
 
-Edit `borealis_v1_motion_risk.py`, change line:
+Edit `maple_shield_motion_risk.py`, change line:
 ```python
 # FROM:
 sess = ort.InferenceSession(MODEL_PATH, providers=["CPUExecutionProvider"])
@@ -137,7 +137,7 @@ sess = ort.InferenceSession(MODEL_PATH, providers=["CUDAExecutionProvider", "CPU
 
 Run again:
 ```bash
-python3 borealis_v1_motion_risk.py
+python3 maple_shield_motion_risk.py
 ```
 
 Expected performance: ~20-25 FPS (2-3× faster than CPU)
@@ -153,7 +153,7 @@ pip install polygraphy --extra-index-url https://pypi.nvidia.com
 
 **2. Convert ONNX → TensorRT:**
 ```bash
-cd ~/borealis/models
+cd ~/maple_shield/models
 trtexec --onnx=yolov8n.onnx \
         --saveEngine=yolov8n_fp16.engine \
         --fp16 \
@@ -175,7 +175,7 @@ Expected performance: ~30-35 FPS
 
 ### Adjust risk sensitivity:
 
-Edit `borealis_risk_v2.py`:
+Edit `maple_shield_risk_v2.py`:
 ```python
 # More sensitive (earlier warnings):
 UNSAFE_THRESHOLD = 0.6  # default: 0.7
@@ -188,7 +188,7 @@ CAUTION_THRESHOLD = 0.5
 
 ### Adjust tracking parameters:
 
-Edit `borealis_tracker_v3.py`:
+Edit `maple_shield_tracker_v3.py`:
 ```python
 # Longer track persistence:
 TRACK_MAX_AGE = 60  # default: 30
@@ -199,7 +199,7 @@ TRACK_MIN_HITS = 1  # default: 2 (not recommended)
 
 ### Change detection confidence:
 
-Edit `borealis_v1_motion_risk.py`:
+Edit `maple_shield_motion_risk.py`:
 ```python
 # More detections (more false positives):
 CONF_THRES = 0.25  # default: 0.35
@@ -223,7 +223,7 @@ python -c "import cv2; cap = cv2.VideoCapture(1); print(cap.isOpened()); cap.rel
 **Jetson:**
 ```bash
 # For CSI camera, use gstreamer pipeline instead of index 0
-# Edit borealis_v1_motion_risk.py, replace:
+# Edit maple_shield_motion_risk.py, replace:
 cap = cv2.VideoCapture(0)
 # With:
 cap = cv2.VideoCapture("nvarguscamerasrc ! video/x-raw(memory:NVMM), width=1280, height=720, framerate=30/1 ! nvvidconv ! video/x-raw, format=BGRx ! videoconvert ! video/x-raw, format=BGR ! appsink", cv2.CAP_GSTREAMER)
@@ -257,7 +257,7 @@ If temps > 80°C, add active cooling (fan) or reduce load.
 
 **Reduce frame rate to lower thermal load:**
 
-Edit `borealis_v1_motion_risk.py`:
+Edit `maple_shield_motion_risk.py`:
 ```python
 # Add frame skip logic
 if frame_id % 2 == 0:  # Process every other frame
@@ -276,7 +276,7 @@ if frame_id % 2 == 0:  # Process every other frame
 
 **2. Start recording:**
 ```bash
-python3 borealis_v1_motion_risk.py
+python3 maple_shield_motion_risk.py
 ```
 
 **3. Monitor live feed:**
@@ -293,7 +293,7 @@ python3 borealis_v1_motion_risk.py
 ls -lt runs/ | head -n 2
 
 # Replay mission
-python3 borealis_v1_replay_json.py runs/<timestamp>
+python3 maple_shield_replay_json.py runs/<timestamp>
 
 # Extract high-risk events
 grep "UNSAFE" runs/<timestamp>/detections.jsonl | head -n 10
@@ -342,3 +342,5 @@ cp mission_20260208.tar.gz /media/usb/
 
 **Last Updated:** 2026-02-08  
 **Version:** 1.0 (Phase-1 CPU baseline)
+
+

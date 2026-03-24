@@ -17,3 +17,4 @@ output_count = len(list(Path("datasets/arctic_maritime").glob("*.jpg")))
 print(f"Input images: {input_count}")
 print(f"Augmented images: {output_count}")
 print(f"Augmentation factor: {output_count / max(input_count, 1):.1f}x")
+

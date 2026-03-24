@@ -249,7 +249,7 @@ def main():
             print(f"[metrics] frame={frame_id} fps={fps:.1f} infer_ms={infer_ms:.1f} det={len(det_list)}")
             last_print = ts
 
-        cv2.imshow("BOREALIS V1 - Detect + Logging", frame)
+        cv2.imshow("MAPLE SHIELD - Detect + Logging", frame)
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
@@ -269,3 +269,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

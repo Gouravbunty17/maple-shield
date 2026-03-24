@@ -4,7 +4,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 import onnxruntime as ort
-from borealis_risk import compute_risk_score, get_risk_color
+from maple_shield_risk import compute_risk_score, get_risk_color
 
 COCO80 = [
     "person","bicycle","car","motorcycle","airplane","bus","train","truck","boat","traffic light",
@@ -372,7 +372,7 @@ def main():
             }
             f.write(json.dumps(rec) + "\n")
 
-        cv2.imshow("BOREALIS V1 - Risk Scoring", frame)
+        cv2.imshow("MAPLE SHIELD - Risk Scoring", frame)
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
@@ -392,3 +392,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

@@ -1,4 +1,4 @@
-﻿# BOREALIS Changelog
+﻿# Maple Shield Changelog
 
 All notable changes to this project will be documented in this file.
 
@@ -95,3 +95,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `1.0.0 → 1.1.0`: Add stereo depth estimation (new feature)
 - `1.1.0 → 1.1.1`: Fix tracker ID swap bug (patch)
 - `1.1.1 → 2.0.0`: Change JSONL schema (breaking change)
+
+

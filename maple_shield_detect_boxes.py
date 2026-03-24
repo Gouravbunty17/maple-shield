@@ -163,7 +163,7 @@ def main():
         cv2.putText(frame, f"FPS {fps:.1f} | infer {infer_ms:.1f}ms | det {det.shape[0]}",
                     (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,255,255), 2)
 
-        cv2.imshow("BOREALIS V1 - YOLO Boxes (NumPy NMS)", frame)
+        cv2.imshow("MAPLE SHIELD - Detection", frame)
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
@@ -172,3 +172,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

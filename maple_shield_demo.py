@@ -45,7 +45,7 @@ def main():
         cv2.putText(frame, f"FPS {fps:.1f} | infer {infer_ms:.1f}ms",
                     (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,0), 2)
 
-        cv2.imshow("BOREALIS V1 (Windows)", frame)
+        cv2.imshow("MAPLE SHIELD (Windows)", frame)
         if cv2.waitKey(1) & 0xFF == ord("q"):
             break
 
@@ -55,3 +55,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

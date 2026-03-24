@@ -124,13 +124,13 @@ def main():
                 # Header with max risk
                 max_risk = rec.get("max_risk_state", "SAFE")
                 max_score = rec.get("max_risk_score", 0.0)
-                infer_ms = float(rec.get("infer_ms", 0))
+                infer_ms = float(rec.ggit add .et("infer_ms", 0))
                 
                 info = f"frame {frame_idx} | {infer_ms:.1f}ms | {len(dets)} det | MAX: {max_risk} {max_score:.2f}"
                 color = get_risk_color(max_risk)
                 cv2.putText(frame, info, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
         
-        cv2.imshow("BOREALIS Replay", frame)
+        cv2.imshow("MAPLE SHIELD Replay", frame)
         k = cv2.waitKey(delay if not paused else 0) & 0xFF
         
         if k == ord("q"):
@@ -143,3 +143,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

@@ -1,4 +1,4 @@
-﻿# BOREALIS — Development Roadmap
+﻿# Maple Shield — Development Roadmap
 
 ---
 
@@ -246,7 +246,7 @@ if battery < 10%:
 
 **6.1: RK3588 evaluation (4 weeks)**
 - [ ] Acquire RK3588 dev board
-- [ ] Port BOREALIS to RKNN
+- [ ] Port Maple Shield to RKNN
 - [ ] Benchmark performance
 - [ ] Assess thermal characteristics
 
@@ -324,3 +324,5 @@ if battery < 10%:
 
 **Last Updated:** 2026-02-08  
 **Current Phase:** Phase 1 complete, Phase 2-3 in progress
+
+
