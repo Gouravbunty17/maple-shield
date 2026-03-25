@@ -378,7 +378,7 @@ def main(source, model_path: str, runs_dir: Path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Maple Shield Detection MVP")
     parser.add_argument("--source", default=0, help="Webcam index or video path")
-    parser.add_argument("--model", default=r"models\yolov8n.onnx", help="ONNX model path")
+    parser.add_argument("--model", default=r"models\maple_shield_drone_v1_dense.onnx", help="ONNX model path")
     parser.add_argument("--runs-dir", default="runs", help="Output directory")
     args = parser.parse_args()
 
