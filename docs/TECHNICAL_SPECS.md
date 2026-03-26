@@ -1,4 +1,4 @@
-﻿# BOREALIS V1 — Technical Specifications
+﻿# Maple Shield V1 — Technical Specifications
 
 ---
 
@@ -323,3 +323,5 @@ if not Path(MODEL_PATH).exists():
 
 **Last Updated:** 2026-02-08  
 **Version:** 1.0 (Phase-1 CPU baseline)
+
+

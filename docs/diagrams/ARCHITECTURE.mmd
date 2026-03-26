@@ -1,5 +1,5 @@
 ﻿flowchart LR
-  %% BOREALIS V1 — High-level Architecture
+  %% Maple Shield V1 — High-level Architecture
 
   CAM[Camera /<br/>Video Source] --> PRE[Preprocess<br/>resize + normalize]
   PRE --> INF[Inference<br/>YOLOv8 ONNX]
@@ -17,3 +17,5 @@
   REPLAY --> VIEW[Review /<br/>Debug]
 
   TRK --> LIFE[Lifecycle<br/>lifecycle.json]
+
+

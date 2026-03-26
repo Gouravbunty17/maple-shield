@@ -1,11 +1,11 @@
-﻿# BOREALIS V1 — System Architecture
+﻿# Maple Shield V1 — System Architecture
 **Canadian Sovereign Edge AI Intelligence System**
 
 ---
 
 ## Executive Summary
 
-BOREALIS is a CPU-validated computer vision pipeline designed for Arctic sovereignty operations. The system provides real-time threat detection and risk assessment with complete audit trails, operating without cloud dependencies or constant connectivity.
+Maple Shield is a CPU-validated computer vision pipeline designed for Arctic sovereignty operations. The system provides real-time threat detection and risk assessment with complete audit trails, operating without cloud dependencies or constant connectivity.
 
 **Status:** Phase-1 complete (CPU baseline validated)  
 **Performance:** ~7-8 FPS on CPU, ~130-150ms inference latency  
@@ -35,7 +35,7 @@ BOREALIS is a CPU-validated computer vision pipeline designed for Arctic soverei
 ## System Overview
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    BOREALIS V1 Pipeline                      │
+│                    Maple Shield V1 Pipeline                      │
 ├─────────────────────────────────────────────────────────────┤
 │                                                              │
 │  Camera Input (CV2)                                          │
@@ -76,7 +76,7 @@ BOREALIS is a CPU-validated computer vision pipeline designed for Arctic soverei
 - **Post-processing:** NMS (IoU threshold 0.45, confidence threshold 0.35)
 - **Classes:** COCO80 (current), Arctic-specific classes (planned)
 
-### 2. Tracking System (`borealis_tracker_v3.py`)
+### 2. Tracking System (`maple_shield_tracker_v3.py`)
 - **Algorithm:** IoU-based greedy matching
 - **Features:**
   - EMA box smoothing (alpha=0.7)
@@ -86,7 +86,7 @@ BOREALIS is a CPU-validated computer vision pipeline designed for Arctic soverei
   - Persistence tracking for risk escalation
 - **Output:** track_id, velocity (vx, vy, speed), persistence_count
 
-### 3. Risk Assessment (`borealis_risk_v2.py`)
+### 3. Risk Assessment (`maple_shield_risk_v2.py`)
 - **Motion-Weighted Scoring:**
   - Forward sector: 25% weight (60% center strip)
   - Distance proxy: 25% weight (box area → range estimate)
@@ -104,7 +104,7 @@ BOREALIS is a CPU-validated computer vision pipeline designed for Arctic soverei
 - **Lifecycle logs:** Track statistics (birth, death, velocity, persistence)
 - **Metadata:** Run configuration, timestamps, performance stats
 
-### 5. Replay System (`borealis_v1_replay_json.py`)
+### 5. Replay System (`maple_shield_replay_json.py`)
 - **Source of truth:** Raw video + JSONL detections
 - **Features:** Pause/resume, speed control, risk-colored visualization
 - **Integrity:** Frame hash verification (optional)
@@ -168,11 +168,11 @@ Frame N → Inference → Detections → Tracker → Risk → Log
 
 ## File Structure
 ```
-borealis/
-├── borealis_v1_motion_risk.py    # Main pipeline
-├── borealis_tracker_v3.py         # Tracking + velocity + persistence
-├── borealis_risk_v2.py            # Motion-weighted risk assessment
-├── borealis_v1_replay_json.py    # Replay tool
+maple_shield/
+├── maple_shield_motion_risk.py    # Main pipeline
+├── maple_shield_tracker_v3.py         # Tracking + velocity + persistence
+├── maple_shield_risk_v2.py            # Motion-weighted risk assessment
+├── maple_shield_replay_json.py    # Replay tool
 ├── arctic_augment.py              # Training data augmentation
 ├── models/
 │   └── yolov8n.onnx               # Detection model
@@ -203,8 +203,10 @@ borealis/
 
 ## Contact
 
-**Project:** BOREALIS — Canadian Sovereign Edge AI  
+**Project:** Maple Shield — Canadian Sovereign Edge AI  
 **Status:** Phase-1 validated, hardware migration pending  
 **Documentation Date:** 2026-02-08
+
+
 
 

@@ -134,3 +134,4 @@ if __name__ == "__main__":
         output_dir="datasets/arctic_augmented",
         versions_per_image=4  # 4 versions per image (light, moderate, heavy, polar_night)
     )
+

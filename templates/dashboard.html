@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maple Shield — Replay Dashboard</title>
+<style>
+  :root {
+    --bg:        #060d1a;
+    --panel:     #0b1628;
+    --border:    #1a3050;
+    --accent:    #1e6db5;
+    --text:      #c8d8ea;
+    --dim:       #4a6070;
+    --clear:     #22c55e;
+    --low:       #06b6d4;
+    --medium:    #f59e0b;
+    --high:      #ef4444;
+    --critical:  #7c3aed;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; font-size: 13px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ── Header ── */
+  #header { display: flex; align-items: center; gap: 20px; padding: 8px 16px; background: var(--panel); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  #header .logo { font-size: 16px; font-weight: bold; color: #fff; letter-spacing: 2px; }
+  #header .logo span { color: var(--accent); }
+  #run-selector { background: #0a1830; border: 1px solid var(--border); color: var(--text); padding: 4px 8px; font-family: inherit; font-size: 12px; cursor: pointer; }
+  .stat-pill { background: #0a1830; border: 1px solid var(--border); padding: 3px 10px; border-radius: 2px; font-size: 11px; }
+  .stat-pill b { color: #fff; }
+  #threat-badge { padding: 4px 14px; border-radius: 2px; font-weight: bold; letter-spacing: 1px; font-size: 12px; }
+  .t-clear    { background: #052e16; color: var(--clear); border: 1px solid var(--clear); }
+  .t-low      { background: #083344; color: var(--low);   border: 1px solid var(--low); }
+  .t-medium   { background: #3d2000; color: var(--medium);border: 1px solid var(--medium); }
+  .t-high     { background: #3d0000; color: var(--high);  border: 1px solid var(--high); }
+  .t-critical { background: #200040; color: var(--critical); border: 1px solid var(--critical); }
+
+  /* ── Main area ── */
+  #main { display: flex; flex: 1; overflow: hidden; }
+
+  /* ── Radar panel ── */
+  #radar-panel { display: flex; flex-direction: column; padding: 12px; gap: 8px; flex-shrink: 0; }
+  #radar-panel h3 { font-size: 10px; letter-spacing: 2px; color: var(--dim); text-transform: uppercase; }
+  #radar-canvas { border: 1px solid var(--border); display: block; }
+
+  /* ── Right panel ── */
+  #right-panel { flex: 1; display: flex; flex-direction: column; border-left: 1px solid var(--border); overflow: hidden; }
+
+  /* ── Threat timeline ── */
+  #timeline-panel { padding: 10px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  #timeline-panel h3 { font-size: 10px; letter-spacing: 2px; color: var(--dim); margin-bottom: 6px; }
+  #timeline-canvas { display: block; width: 100%; cursor: pointer; }
+
+  /* ── Tracks + Alerts ── */
+  #bottom-panels { display: flex; flex: 1; overflow: hidden; }
+  #tracks-panel, #alerts-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 10px 14px; }
+  #tracks-panel { border-right: 1px solid var(--border); }
+  .panel-title { font-size: 10px; letter-spacing: 2px; color: var(--dim); margin-bottom: 8px; text-transform: uppercase; }
+  .scroll-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+  .scroll-list::-webkit-scrollbar { width: 4px; }
+  .scroll-list::-webkit-scrollbar-thumb { background: var(--border); }
+
+  /* Track row */
+  .track-row { background: #0a1828; border: 1px solid var(--border); padding: 6px 10px; display: flex; align-items: center; gap: 10px; border-radius: 2px; }
+  .track-id { font-size: 11px; color: var(--dim); width: 36px; }
+  .track-label { flex: 1; color: #fff; }
+  .track-score { color: var(--dim); font-size: 11px; }
+  .threat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Alert row */
+  .alert-row { background: #0a1828; border-left: 3px solid var(--border); padding: 6px 10px; border-radius: 2px; }
+  .alert-row.a-medium { border-left-color: var(--medium); }
+  .alert-row.a-high    { border-left-color: var(--high); }
+  .alert-row.a-critical { border-left-color: var(--critical); background: #160020; }
+  .alert-time { color: var(--dim); font-size: 10px; }
+  .alert-msg  { color: var(--text); margin-top: 2px; }
+  .alert-meta { color: var(--dim); font-size: 10px; margin-top: 2px; }
+
+  /* ── Playback bar ── */
+  #playback-bar { display: flex; align-items: center; gap: 12px; padding: 8px 16px; background: var(--panel); border-top: 1px solid var(--border); flex-shrink: 0; }
+  .pb-btn { background: #0a1830; border: 1px solid var(--border); color: var(--text); padding: 4px 12px; cursor: pointer; font-family: inherit; font-size: 13px; }
+  .pb-btn:hover { border-color: var(--accent); color: #fff; }
+  #scrubber { flex: 1; accent-color: var(--accent); cursor: pointer; }
+  #frame-label { color: var(--dim); font-size: 11px; min-width: 100px; text-align: right; }
+  #speed-select { background: #0a1830; border: 1px solid var(--border); color: var(--text); padding: 3px 6px; font-family: inherit; font-size: 12px; cursor: pointer; }
+  #no-runs { color: var(--dim); padding: 40px; text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div id="header">
+  <div class="logo">🛡️ MAPLE <span>SHIELD</span></div>
+  <select id="run-selector"><option value="">— select run —</option></select>
+  <div class="stat-pill">FRAMES <b id="stat-frames">—</b></div>
+  <div class="stat-pill">ALERTS <b id="stat-alerts">—</b></div>
+  <div class="stat-pill">DURATION <b id="stat-dur">—</b></div>
+  <div class="stat-pill">MODEL <b id="stat-model">—</b></div>
+  <div style="flex:1"></div>
+  <div id="threat-badge" class="t-clear">CLEAR</div>
+</div>
+
+<!-- Main -->
+<div id="main">
+  <!-- Radar -->
+  <div id="radar-panel">
+    <h3>Airspace View</h3>
+    <canvas id="radar-canvas" width="420" height="340"></canvas>
+  </div>
+
+  <!-- Right -->
+  <div id="right-panel">
+    <!-- Threat Timeline -->
+    <div id="timeline-panel">
+      <h3>Threat Timeline</h3>
+      <canvas id="timeline-canvas" height="36"></canvas>
+    </div>
+
+    <!-- Tracks + Alerts -->
+    <div id="bottom-panels">
+      <div id="tracks-panel">
+        <div class="panel-title">Active Tracks</div>
+        <div class="scroll-list" id="track-list"><div id="no-runs" style="padding:20px;color:var(--dim)">Select a run to begin</div></div>
+      </div>
+      <div id="alerts-panel">
+        <div class="panel-title">Alert Log</div>
+        <div class="scroll-list" id="alert-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Playback bar -->
+<div id="playback-bar">
+  <button class="pb-btn" id="btn-prev">⏮</button>
+  <button class="pb-btn" id="btn-play">▶ Play</button>
+  <button class="pb-btn" id="btn-next">⏭</button>
+  <input type="range" id="scrubber" min="0" value="0" step="1">
+  <span id="frame-label">Frame 0 / 0</span>
+  <select id="speed-select">
+    <option value="0.5">0.5×</option>
+    <option value="1" selected>1×</option>
+    <option value="2">2×</option>
+    <option value="4">4×</option>
+    <option value="8">8×</option>
+  </select>
+</div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────
+let allRecords  = [];   // full JSONL records
+let summary     = {};   // run summary from API
+let curFrame    = 0;
+let playing     = false;
+let playTimer   = null;
+const TRAIL_LEN = 12;
+const trackTrails = {};   // track_id → [{cx,cy,threat}]
+
+// ── Colour map ─────────────────────────────────────────────────────────────
+const THREAT_COLOR = {
+  CLEAR:    "#22c55e",
+  LOW:      "#06b6d4",
+  MEDIUM:   "#f59e0b",
+  HIGH:     "#ef4444",
+  CRITICAL: "#7c3aed",
+};
+const THREAT_CLASS = {
+  CLEAR: "t-clear", LOW: "t-low", MEDIUM: "t-medium",
+  HIGH: "t-high",   CRITICAL: "t-critical",
+};
+
+// ── Load runs list ─────────────────────────────────────────────────────────
+async function loadRuns() {
+  const resp = await fetch("/api/runs");
+  const runs = await resp.json();
+  const sel = document.getElementById("run-selector");
+  runs.forEach(r => {
+    const opt = document.createElement("option");
+    opt.value = r.name;
+    opt.textContent = `${r.name}  [${r.frames} fr · ${r.max_threat} · ${r.duration_s}s]`;
+    sel.appendChild(opt);
+  });
+}
+
+// ── Load a run ─────────────────────────────────────────────────────────────
+async function loadRun(name) {
+  allRecords = [];
+  Object.keys(trackTrails).forEach(k => delete trackTrails[k]);
+  curFrame = 0;
+  stopPlay();
+
+  const [recResp, sumResp] = await Promise.all([
+    fetch(`/api/run/${name}`),
+    fetch(`/api/run/${name}/summary`),
+  ]);
+  allRecords = await recResp.json();
+  summary    = await sumResp.json();
+
+  // Stats header
+  document.getElementById("stat-frames").textContent = summary.total_frames;
+  document.getElementById("stat-alerts").textContent = summary.total_alerts;
+  const dur = allRecords.length > 1
+    ? (allRecords[allRecords.length-1].ts - allRecords[0].ts).toFixed(1) + "s"
+    : "—";
+  document.getElementById("stat-dur").textContent = dur;
+
+  // Model name from first record's meta (not in JSONL; use placeholder)
+  document.getElementById("stat-model").textContent = "yolov8n";
+
+  // Scrubber
+  const scr = document.getElementById("scrubber");
+  scr.max   = Math.max(0, allRecords.length - 1);
+  scr.value = 0;
+
+  // Timeline
+  drawTimeline();
+
+  // Alert log
+  buildAlertLog(summary.alerts || []);
+
+  renderFrame(0);
+}
+
+// ── Render one frame ────────────────────────────────────────────────────────
+function renderFrame(idx) {
+  if (!allRecords.length) return;
+  idx = Math.max(0, Math.min(idx, allRecords.length - 1));
+  curFrame = idx;
+  document.getElementById("scrubber").value = idx;
+  document.getElementById("frame-label").textContent =
+    `Frame ${idx + 1} / ${allRecords.length}`;
+
+  const rec = allRecords[idx];
+  const threat = rec.max_threat || "CLEAR";
+  const badge  = document.getElementById("threat-badge");
+  badge.textContent = threat;
+  badge.className   = THREAT_CLASS[threat] || "t-clear";
+
+  // Update trails
+  (rec.detections || []).forEach(det => {
+    if (!det.box) return;
+    const cx = (det.box[0] + det.box[2]) / 2;
+    const cy = (det.box[1] + det.box[3]) / 2;
+    if (!trackTrails[det.track_id]) trackTrails[det.track_id] = [];
+    trackTrails[det.track_id].push({ cx, cy, threat: det.threat || "CLEAR" });
+    if (trackTrails[det.track_id].length > TRAIL_LEN)
+      trackTrails[det.track_id].shift();
+  });
+
+  drawRadar(rec);
+  buildTrackList(rec);
+  highlightTimelineFrame(idx);
+}
+
+// ── Radar canvas ────────────────────────────────────────────────────────────
+function drawRadar(rec) {
+  const canvas = document.getElementById("radar-canvas");
+  const ctx    = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = "#060d1a";
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid rings
+  const cx = W / 2, cy = H / 2;
+  [0.25, 0.5, 0.75, 1.0].forEach(f => {
+    ctx.beginPath();
+    ctx.arc(cx, cy, f * Math.min(W, H) * 0.48, 0, Math.PI * 2);
+    ctx.strokeStyle = "#0d2040";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+  // Crosshairs
+  ctx.strokeStyle = "#0d2040";
+  ctx.lineWidth = 0.5;
+  ctx.beginPath(); ctx.moveTo(cx, 4); ctx.lineTo(cx, H-4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(4, cy); ctx.lineTo(W-4, cy); ctx.stroke();
+
+  // Infer frame dimensions from detections or use defaults
+  const dets = rec.detections || [];
+  let fW = 1280, fH = 720;
+  if (dets.length) {
+    const allX2 = dets.map(d => d.box ? d.box[2] : 0);
+    const allY2 = dets.map(d => d.box ? d.box[3] : 0);
+    fW = Math.max(fW, ...allX2);
+    fH = Math.max(fH, ...allY2);
+  }
+
+  function toCanvas(px, py) {
+    return [px / fW * (W - 20) + 10, py / fH * (H - 20) + 10];
+  }
+
+  // Zone circle (25% of frame min dimension)
+  const zoneR = 0.25 * Math.min(fW, fH);
+  const [zcx, zcy] = toCanvas(fW/2, fH/2);
+  const zR = zoneR / fW * (W - 20);
+  ctx.beginPath();
+  ctx.arc(zcx, zcy, zR, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(30, 109, 181, 0.5)";
+  ctx.setLineDash([4, 4]);
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Trails
+  Object.entries(trackTrails).forEach(([tid, trail]) => {
+    if (trail.length < 2) return;
+    for (let i = 1; i < trail.length; i++) {
+      const alpha = i / trail.length;
+      const [x1, y1] = toCanvas(trail[i-1].cx, trail[i-1].cy);
+      const [x2, y2] = toCanvas(trail[i].cx,   trail[i].cy);
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.strokeStyle = (THREAT_COLOR[trail[i].threat] || "#22c55e") + Math.round(alpha * 180).toString(16).padStart(2,"0");
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+  });
+
+  // Detections
+  dets.forEach(det => {
+    if (!det.box) return;
+    const px = (det.box[0] + det.box[2]) / 2;
+    const py = (det.box[1] + det.box[3]) / 2;
+    const [x, y] = toCanvas(px, py);
+    const color  = THREAT_COLOR[det.threat || "CLEAR"] || "#22c55e";
+
+    // Box outline
+    const [bx1, by1] = toCanvas(det.box[0], det.box[1]);
+    const [bx2, by2] = toCanvas(det.box[2], det.box[3]);
+    ctx.strokeStyle = color + "99";
+    ctx.lineWidth   = 1;
+    ctx.strokeRect(bx1, by1, bx2 - bx1, by2 - by1);
+
+    // Center dot
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    // Pulse ring for HIGH+
+    if (["HIGH", "CRITICAL"].includes(det.threat)) {
+      ctx.beginPath();
+      ctx.arc(x, y, 10, 0, Math.PI * 2);
+      ctx.strokeStyle = color + "66";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // Label
+    ctx.fillStyle = "#fff";
+    ctx.font      = "10px Courier New";
+    ctx.fillText(`ID${det.track_id} ${det.label} [${det.threat}]`, x + 8, y - 4);
+  });
+
+  // Frame info overlay
+  ctx.fillStyle = "#4a6070";
+  ctx.font = "10px Courier New";
+  ctx.fillText(`FPS ${(rec.fps || 0).toFixed(1)}  |  ${rec.kernel_mode || "DENSE"}  |  ${rec.infer_ms ? rec.infer_ms.toFixed(1) + "ms" : ""}`, 8, H - 6);
+}
+
+// ── Timeline canvas ─────────────────────────────────────────────────────────
+function drawTimeline() {
+  const canvas = document.getElementById("timeline-canvas");
+  const W      = canvas.parentElement.clientWidth - 28;
+  canvas.width = W;
+  const ctx    = canvas.getContext("2d");
+  const H      = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  if (!summary.threat_timeline || !summary.threat_timeline.length) return;
+  const tl = summary.threat_timeline;
+  const N  = tl.length;
+
+  tl.forEach((t, i) => {
+    const x = (i / N) * W;
+    const w = Math.max(1, W / N);
+    ctx.fillStyle = THREAT_COLOR[t.threat] || "#22c55e";
+    const barH = (t.rank / 4) * (H - 2) + 2;
+    ctx.fillRect(x, H - barH, w, barH);
+  });
+}
+
+function highlightTimelineFrame(idx) {
+  const canvas = document.getElementById("timeline-canvas");
+  const ctx    = canvas.getContext("2d");
+  // Redraw is cheaper at this scale
+  drawTimeline();
+  if (!allRecords.length) return;
+  const x = (idx / allRecords.length) * canvas.width;
+  ctx.fillStyle = "rgba(255,255,255,0.8)";
+  ctx.fillRect(x - 0.5, 0, 1.5, canvas.height);
+}
+
+// ── Track list ──────────────────────────────────────────────────────────────
+function buildTrackList(rec) {
+  const list = document.getElementById("track-list");
+  list.innerHTML = "";
+  const dets = (rec.detections || []).filter(d => d.object_type !== "ignore");
+  if (!dets.length) {
+    list.innerHTML = '<div style="color:var(--dim);padding:8px">No active tracks</div>';
+    return;
+  }
+  dets.forEach(det => {
+    const color = THREAT_COLOR[det.threat || "CLEAR"];
+    const row = document.createElement("div");
+    row.className = "track-row";
+    row.innerHTML = `
+      <div class="threat-dot" style="background:${color}"></div>
+      <div class="track-id">ID ${det.track_id}</div>
+      <div class="track-label">${det.label}</div>
+      <div class="track-score">${(det.conf * 100).toFixed(0)}%  ${det.threat}</div>
+      ${det.in_zone ? '<span style="color:var(--high);font-size:10px">⚠ ZONE</span>' : ''}
+    `;
+    list.appendChild(row);
+  });
+}
+
+// ── Alert log ───────────────────────────────────────────────────────────────
+function buildAlertLog(alerts) {
+  const list = document.getElementById("alert-list");
+  list.innerHTML = "";
+  if (!alerts.length) {
+    list.innerHTML = '<div style="color:var(--dim);padding:8px">No alerts in this run</div>';
+    return;
+  }
+  [...alerts].reverse().forEach(a => {
+    const row = document.createElement("div");
+    row.className = `alert-row a-${(a.threat || "").toLowerCase()}`;
+    const ts = a.ts ? new Date(a.ts * 1000).toISOString().substr(11, 8) : "—";
+    row.innerHTML = `
+      <div class="alert-time">${ts}  ·  Frame ${a.frame_id || a.frame}</div>
+      <div class="alert-msg"><b style="color:${THREAT_COLOR[a.threat]||'#fff'}">${a.threat}</b> — Track ID ${a.track_id}  <i>${a.label}</i></div>
+      <div class="alert-meta">conf ${(a.conf * 100).toFixed(0)}%  ·  score ${(a.score * 100).toFixed(0)}%  ${a.in_zone ? "·  ⚠ IN ZONE" : ""}</div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+// ── Playback controls ────────────────────────────────────────────────────────
+function stopPlay() {
+  playing = false;
+  clearTimeout(playTimer);
+  document.getElementById("btn-play").textContent = "▶ Play";
+}
+
+function startPlay() {
+  if (!allRecords.length) return;
+  playing = true;
+  document.getElementById("btn-play").textContent = "⏸ Pause";
+  const speed = parseFloat(document.getElementById("speed-select").value);
+  function tick() {
+    if (!playing) return;
+    if (curFrame >= allRecords.length - 1) { stopPlay(); return; }
+    renderFrame(curFrame + 1);
+    playTimer = setTimeout(tick, 33 / speed);  // ~30fps base
+  }
+  tick();
+}
+
+document.getElementById("btn-play").addEventListener("click", () => {
+  if (playing) stopPlay(); else startPlay();
+});
+document.getElementById("btn-prev").addEventListener("click", () => {
+  stopPlay(); renderFrame(curFrame - 1);
+});
+document.getElementById("btn-next").addEventListener("click", () => {
+  stopPlay(); renderFrame(curFrame + 1);
+});
+document.getElementById("scrubber").addEventListener("input", e => {
+  stopPlay(); renderFrame(parseInt(e.target.value));
+});
+document.getElementById("timeline-canvas").addEventListener("click", e => {
+  if (!allRecords.length) return;
+  const rect = e.target.getBoundingClientRect();
+  const frac = (e.clientX - rect.left) / rect.width;
+  stopPlay();
+  renderFrame(Math.floor(frac * allRecords.length));
+});
+document.getElementById("run-selector").addEventListener("change", e => {
+  if (e.target.value) loadRun(e.target.value);
+});
+window.addEventListener("resize", drawTimeline);
+
+// ── Boot ──────────────────────────────────────────────────────────────────
+loadRuns();
+</script>
+</body>
+</html>
