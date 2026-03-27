@@ -37,11 +37,23 @@ echo.
 echo   Replay Dashboard  →  http://localhost:5000
 echo   C2 Simulator      →  http://localhost:5001
 echo.
-echo   Now run detection in a new window:
+echo  ════════════════════════════════════════════════════
+echo   DETECTION OPTIONS
+echo  ════════════════════════════════════════════════════
 echo.
+echo   Option A — Live camera / video:
 echo     python maple_shield_mvp.py                  (webcam)
 echo     python maple_shield_mvp.py --source VIDEO   (video file)
 echo.
+echo   Option B — Synthetic scenario (no camera needed):
+echo     python maple_shield_sim.py --scenario incursion
+echo     python maple_shield_sim.py --scenario swarm
+echo     python maple_shield_sim.py --scenario recon
+echo     python maple_shield_sim.py --scenario standoff
+echo.
+echo  ════════════════════════════════════════════════════
+echo   CoT UDP → 239.2.3.1:6969  (ATAK multicast)
+echo   MQTT    → localhost:1883
 echo  ════════════════════════════════════════════════════
 echo.
 pause
