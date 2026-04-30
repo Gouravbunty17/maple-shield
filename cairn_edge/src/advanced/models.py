@@ -1,4 +1,4 @@
-"""Shared Pydantic models for Cairn-Edge tactical and sensor modules.
+"""Shared Pydantic models for Cairn-Edge tactical, sensor, and ML-hardening modules.
 
 These models are intentionally compact. They are safe to serialize over the mesh,
 write to JSONL, and reuse in CPU hot paths on Jetson Orin Nano.
@@ -8,7 +8,8 @@ from __future__ import annotations
 import time
 from typing import Any, Dict, Literal, Optional, Tuple
 
-from pydantic import BaseModel, Field
+import numpy as np
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Track(BaseModel):
@@ -23,12 +24,51 @@ class Track(BaseModel):
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     class_id: str = "unknown"
     kinematic_risk: float = Field(default=0.0, ge=0.0, le=100.0)
+    adversarial: bool = False
+    adversarial_score: float = Field(default=0.0, ge=0.0, le=1.0)
     timestamp: float = Field(default_factory=time.time)
 
     def as_payload(self) -> Dict[str, Any]:
         if hasattr(self, "model_dump"):
             return self.model_dump()  # pydantic v2
         return self.dict()  # pydantic v1
+
+
+class Detection(BaseModel):
+    """Detector output before tracking. ROI crop is optional and non-serializable."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    bbox: Tuple[int, int, int, int]
+    confidence: float = Field(ge=0.0, le=1.0)
+    class_id: str
+    roi_crop: Optional[np.ndarray] = None
+    adversarial: bool = False
+    adversarial_score: float = Field(default=0.0, ge=0.0, le=1.0)
+
+    def serializable_dict(self) -> Dict[str, Any]:
+        data = self.model_dump(exclude={"roi_crop"}) if hasattr(self, "model_dump") else self.dict(exclude={"roi_crop"})
+        return data
+
+
+class HardExample(BaseModel):
+    """Operator-reviewed or uncertain detection stored for off-device training."""
+
+    image_path: str
+    detection_dict: Dict[str, Any]
+    operator_labels: list[str] = Field(default_factory=list)
+    signatures: list[str] = Field(default_factory=list)
+    timestamp: float = Field(default_factory=time.time)
+    ground_truth: bool = False
+
+
+class ModelUpdatePackage(BaseModel):
+    """Signed model update envelope staged for edge deployment."""
+
+    engine_bytes: bytes
+    signature: str
+    version: str
+    drift_report: Dict[str, Any]
 
 
 class ThermalDetection(BaseModel):
