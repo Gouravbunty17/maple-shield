@@ -1,4 +1,4 @@
-"""Shared Pydantic models for Cairn-Edge tactical modules.
+"""Shared Pydantic models for Cairn-Edge tactical and sensor modules.
 
 These models are intentionally compact. They are safe to serialize over the mesh,
 write to JSONL, and reuse in CPU hot paths on Jetson Orin Nano.
@@ -6,13 +6,13 @@ write to JSONL, and reuse in CPU hot paths on Jetson Orin Nano.
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Dict, Literal, Optional, Tuple
 
 from pydantic import BaseModel, Field
 
 
 class Track(BaseModel):
-    """Normalized air/sky track used by swarm, geofence, and mesh modules."""
+    """Normalized air/sky track used by swarm, geofence, mesh, and evidence modules."""
 
     track_id: str
     lat: float
@@ -29,6 +29,22 @@ class Track(BaseModel):
         if hasattr(self, "model_dump"):
             return self.model_dump()  # pydantic v2
         return self.dict()  # pydantic v1
+
+
+class ThermalDetection(BaseModel):
+    """Thermal hot-spot detection aligned to RGB frame coordinates."""
+
+    bbox: Tuple[int, int, int, int]
+    temperature_c: float
+    area_px: int = Field(ge=0)
+
+
+class KLVFrame(BaseModel):
+    """MISB/STANAG metadata frame for periodic evidence export."""
+
+    timestamp_ns: int
+    mandatory_tags: Dict[int, Any]
+    warning_flags: list[str] = Field(default_factory=list)
 
 
 class RiskAssessment(BaseModel):
