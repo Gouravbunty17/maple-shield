@@ -1,0 +1,28 @@
+node:
+  id: cairn-edge-node-001
+  key_dir: /etc/cairn/keys
+
+transport:
+  mode: multicast
+  multicast:
+    group: 239.1.2.3
+    port: 5005
+    ttl: 2
+  unicast_gossip:
+    bind_host: 0.0.0.0
+    bind_port: 5006
+    sync_interval_s: 2
+    peers:
+      - host: 192.168.10.12
+        port: 5006
+      - host: 192.168.10.13
+        port: 5006
+
+heartbeat:
+  interval_s: 5
+  peer_timeout_s: 15
+
+security:
+  authentication: ed25519
+  replay_protection: highest_sequence_per_source
+  trusted_peer_public_keys_dir: /etc/cairn/keys/peers

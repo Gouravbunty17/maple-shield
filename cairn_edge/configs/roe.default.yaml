@@ -1,0 +1,83 @@
+version: 1
+profile: default_passive_detection
+
+# ROE here means reporting and escalation logic for operator awareness.
+# It does not authorize autonomous engagement.
+
+zones:
+  - id: perimeter_outer
+    name: Outer Perimeter
+    priority: medium
+    polygon_normalized:
+      - [0.00, 0.00]
+      - [1.00, 0.00]
+      - [1.00, 0.65]
+      - [0.00, 0.65]
+  - id: protected_asset
+    name: Protected Asset Approach Cone
+    priority: high
+    polygon_normalized:
+      - [0.35, 0.10]
+      - [0.65, 0.10]
+      - [0.90, 0.65]
+      - [0.10, 0.65]
+
+classification_policy:
+  friendly:
+    cooperative_whitelist_required: true
+    allowed_sources: [adsb, remote_id, operator_confirmed]
+  neutral:
+    examples: [bird, cooperative_aircraft, low_confidence_far_aircraft]
+  unknown:
+    default_for_unverified_air_tracks: true
+  suspect:
+    triggers:
+      - non_cooperative_uas_in_outer_zone
+      - repeated_approach_vector
+      - hover_near_protected_asset
+      - swarm_cluster_detected
+  hostile:
+    requires_operator_confirmation: true
+    triggers:
+      - high_confidence_uas_entering_protected_asset_zone
+      - multiple_suspect_tracks_converging
+      - persistent_track_ignoring_deconfliction_whitelist
+
+risk_actions:
+  low:
+    operator_action: Continue passive monitoring.
+    emit_cot: true
+    record_event: true
+  medium:
+    operator_action: Notify watch operator and continue track confirmation.
+    emit_cot: true
+    record_event: true
+  high:
+    operator_action: Escalate to authorized security lead; preserve evidence window.
+    emit_cot: true
+    record_event: true
+    preserve_video_seconds_before: 20
+    preserve_video_seconds_after: 40
+  critical:
+    operator_action: Immediate operator review; notify authorized response chain if confirmed.
+    emit_cot: true
+    record_event: true
+    preserve_video_seconds_before: 30
+    preserve_video_seconds_after: 90
+
+swarm:
+  enabled: true
+  min_tracks: 3
+  dbscan_eps_m: 120
+  dbscan_min_samples: 3
+  escalation_bonus: 0.15
+
+cooperative_whitelist:
+  adsb_grace_seconds: 10
+  remote_id_grace_seconds: 10
+  stale_track_seconds: 30
+
+logging:
+  include_rule_matches: true
+  include_operator_action: true
+  include_model_version: true

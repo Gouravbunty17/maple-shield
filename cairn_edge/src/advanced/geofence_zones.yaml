@@ -1,0 +1,33 @@
+zones:
+  - name: Outer Watch Zone
+    polygon:
+      - [43.7000, -79.6500]
+      - [43.7000, -79.6000]
+      - [43.6600, -79.6000]
+      - [43.6600, -79.6500]
+    altitude_min_m: 0
+    altitude_max_m: 1200
+    action: monitor
+    risk_multiplier: 1.10
+
+  - name: Protected Asset Approach Zone
+    polygon:
+      - [43.6900, -79.6350]
+      - [43.6900, -79.6150]
+      - [43.6700, -79.6150]
+      - [43.6700, -79.6350]
+    altitude_min_m: 0
+    altitude_max_m: 800
+    action: alert
+    risk_multiplier: 1.60
+
+  - name: Critical Inner Zone
+    polygon:
+      - [43.6830, -79.6280]
+      - [43.6830, -79.6220]
+      - [43.6770, -79.6220]
+      - [43.6770, -79.6280]
+    altitude_min_m: 0
+    altitude_max_m: 500
+    action: escalate
+    risk_multiplier: 2.20

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Cairn-Edge Geofence Zones",
+  "type": "object",
+  "required": ["zones"],
+  "properties": {
+    "zones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "polygon", "altitude_min_m", "altitude_max_m", "action", "risk_multiplier"],
+        "properties": {
+          "name": {"type": "string"},
+          "polygon": {
+            "type": "array",
+            "minItems": 3,
+            "items": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {"type": "number"}
+            }
+          },
+          "altitude_min_m": {"type": "number"},
+          "altitude_max_m": {"type": "number"},
+          "action": {"type": "string", "enum": ["ignore", "monitor", "alert", "escalate"]},
+          "risk_multiplier": {"type": "number", "minimum": 0}
+        }
+      }
+    }
+  }
+}
