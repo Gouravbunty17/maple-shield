@@ -1,0 +1,20 @@
+thermal_enabled: false
+camera_id: /dev/video1
+calibration_path: cairn_edge/calibration/homography.npy
+power_save: true
+threshold_c: 50.0
+min_area_px: 100
+alpha: 0.4
+camera_width: 160
+camera_height: 120
+fusion_period_frames: 5
+
+stanag4609:
+  enabled: false
+  output_dir: evidence/stanag4609
+  export_period_frames: 30
+  max_queue_size: 8
+  retry_limit: 3
+  encoder: libx265
+  preset: ultrafast
+  note: export is asynchronous and must not run on the frame hot path
