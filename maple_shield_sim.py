@@ -13,7 +13,7 @@ Scenarios:
 
 Usage:
     python maple_shield_sim.py                         # default: incursion
-    python maple_shield_sim.py --scenario swarm        # swarm attack demo
+    python maple_shield_sim.py --scenario swarm        # multi-drone scenario demo
     python maple_shield_sim.py --scenario recon        # single recon drone
     python maple_shield_sim.py --no-display            # headless (log + MQTT only)
     python maple_shield_sim.py --scenario incursion --loops 3
@@ -133,7 +133,7 @@ class SyntheticTrack:
 
 def scenario_incursion(loop: int = 0) -> list[SyntheticTrack]:
     """
-    Sentinel Shield showcase scenario:
+    Maple Shield showcase scenario:
     1 drone enters top-right, approaches centre zone, escalates to CRITICAL.
     A bird crosses the bottom of frame (false-positive test).
     """

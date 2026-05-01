@@ -15,7 +15,7 @@ CAIRN is the internal detection engine behind Maple Shield. ARGUS is treated as 
 
 **Phase-1 Complete:** CPU validation baseline  
 **CAIRN Engine v2:** Initial modular engine layer added  
-**Branch:** `feat/cairn-engine-v2`
+**Active branch:** `feat/rebrand-to-maple-shield`
 
 ## What CAIRN adds
 
