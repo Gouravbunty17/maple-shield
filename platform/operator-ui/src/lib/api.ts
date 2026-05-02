@@ -1,4 +1,4 @@
-import type { Alert, AuditEntry, Incident, IncidentStatus } from "../types";
+import type { Alert, AuditEntry, CairnHealth, Incident, IncidentStatus } from "../types";
 
 const BASE = "/api";
 
@@ -10,6 +10,7 @@ async function j<T>(p: Promise<Response>): Promise<T> {
 
 export const api = {
   health: () => j<{ status: string; lawful_use_ack: boolean }>(fetch(`${BASE}/healthz`)),
+  cairnHealth: () => j<CairnHealth>(fetch(`${BASE}/cairn/health`)),
   listAlerts: (severity?: string) =>
     j<Alert[]>(fetch(`${BASE}/alerts${severity ? `?severity=${severity}` : ""}`)),
   listIncidents: () => j<Incident[]>(fetch(`${BASE}/incidents`)),

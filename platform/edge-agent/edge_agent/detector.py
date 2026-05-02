@@ -10,9 +10,9 @@ no person/face/vehicle output and no biometric extraction.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from math import sin
-from typing import List, Protocol, Tuple
+from typing import Any, Dict, List, Optional, Protocol, Tuple
 
 
 @dataclass
@@ -20,6 +20,8 @@ class Detection:
     cls: str
     confidence: float
     bbox: Tuple[float, float, float, float]  # x1, y1, x2, y2
+    track_id: Optional[str] = None
+    raw: Dict[str, Any] = field(default_factory=dict)
 
 
 class Detector(Protocol):

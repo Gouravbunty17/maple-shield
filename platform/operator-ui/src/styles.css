@@ -53,6 +53,16 @@ a { color: inherit; text-decoration: none; }
   position: relative; aspect-ratio: 16 / 9; background: #06080a; border: 1px solid #1a1c1d;
   border-radius: 12px; overflow: hidden;
 }
+.cairn-health {
+  display: inline-flex; align-items: center; gap: 8px; margin: 0 0 12px 0; padding: 7px 10px;
+  border: 1px solid #1a1c1d; border-radius: 999px; background: #0a0c0d; color: #a8b3b1;
+  font-family: "IBM Plex Mono", monospace; font-size: 12px; cursor: pointer;
+}
+.cairn-health:hover { border-color: #2a2d2e; color: #e8efee; }
+.cairn-health.warn { color: #ffb472; border-color: #3d2914; }
+.cairn-dot { width: 7px; height: 7px; border-radius: 999px; background: #00f5cc; box-shadow: 0 0 12px #00f5cc80; }
+.cairn-health.warn .cairn-dot { background: #ffb472; box-shadow: 0 0 12px #ffb47280; }
+.cairn-details { color: #5f7a72; }
 .live-frame .empty { position: absolute; inset: 0; display: grid; place-items: center; color: #5f7a72; font-family: "IBM Plex Mono", monospace; font-size: 12px; }
 .bbox {
   position: absolute; border: 1.5px solid #00f5cc; border-radius: 2px;

@@ -17,6 +17,13 @@ from edge_agent.detector import CairnMockDetector
 from edge_agent.source import MockSource, VideoFileSource
 
 
+def _detection_payload(d):
+    payload = {"cls": d.cls, "confidence": d.confidence, "bbox": list(d.bbox)}
+    if d.track_id:
+        payload["track_id"] = d.track_id
+    return payload
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--source", default="mock",
@@ -47,7 +54,7 @@ def main():
             time.sleep(interval)
         return
 
-    with httpx.Client(timeout=2.0) as client:
+    with httpx.Client(timeout=2.0, trust_env=False) as client:
         for i, frame in src.frames():
             h, w = frame.shape[:2]
             dets = detector.detect(i, w, h)
@@ -57,10 +64,7 @@ def main():
                 "ts": ts,
                 "camera_id": args.camera_id,
                 "image_size": [w, h],
-                "detections": [
-                    {"cls": d.cls, "confidence": d.confidence, "bbox": list(d.bbox)}
-                    for d in dets
-                ],
+                "detections": [_detection_payload(d) for d in dets],
             }
             try:
                 client.post(f"{args.fusion}/detections", json=payload)

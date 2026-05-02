@@ -25,6 +25,16 @@ The detector contract is intentionally narrow: a real implementation can use
 any model architecture, on CPU or accelerator, as long as it returns drone
 detections only.
 
+## Swapping in CAIRN
+
+Use `edge_agent.cairn_adapter.CairnSourceDetector` when a CAIRN detection
+provider is available. The provider emits `CairnDetection` rows, the adapter
+calls `CairnEngine.process_frame()`, then returns platform `Detection` rows.
+
+The adapter preserves CAIRN track ids with a `cairn-` prefix and drops all
+non-drone object types before fusion. Check `GET /cairn/health` from the
+command-api to confirm engine version, compatibility, runtime, and frame count.
+
 ## Backups and retention
 
 - SQLite file location: `MAPLE_SHIELD_DB` env var (default `:memory:`).

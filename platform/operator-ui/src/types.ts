@@ -37,3 +37,16 @@ export interface AuditEntry {
   prev_hash: string;
   hash: string;
 }
+
+export interface CairnHealth {
+  status: string;
+  engine: string;
+  engine_version: string;
+  package_version: string;
+  expected_adapter_version: string;
+  compatible: boolean;
+  frames_processed: number;
+  runtime_s: number;
+  started_ts: number;
+  risk_config: Record<string, unknown>;
+}

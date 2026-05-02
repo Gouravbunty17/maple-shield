@@ -22,7 +22,7 @@ COMMAND_API = os.environ.get("MAPLE_SHIELD_COMMAND_API", "http://localhost:8080"
 app = FastAPI(
     title="Maple Shield - fusion-engine",
     version="0.1.0",
-    description="Track state + alert scoring. Decision support only — never originates an action against a target.",
+    description="Track state + alert scoring. Decision support only - never originates an action against a target.",
 )
 
 _tracker = Tracker()
@@ -35,6 +35,7 @@ class DetectionIn(BaseModel):
     cls: str
     confidence: float
     bbox: list[float]
+    track_id: Optional[str] = None
 
 
 class FrameIn(BaseModel):
@@ -74,7 +75,7 @@ def post_detections(frame: FrameIn):
     import time as _time
     ts = frame.ts if frame.ts is not None else _time.time()
     det_list = [
-        {"cls": d.cls, "confidence": d.confidence, "bbox": d.bbox}
+        {"cls": d.cls, "confidence": d.confidence, "bbox": d.bbox, "track_id": d.track_id}
         for d in frame.detections
     ]
     live_tracks = _tracker.update(frame.camera_id, ts, det_list)
@@ -86,7 +87,7 @@ def post_detections(frame: FrameIn):
             _last_alert_rule_for_track.pop(tid, None)
 
     posted_alerts = []
-    with httpx.Client(timeout=2.0) as client:
+    with httpx.Client(timeout=2.0, trust_env=False) as client:
         for trk in live_tracks:
             sa = score_track(trk, _cfg)
             if sa is None:

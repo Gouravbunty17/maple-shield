@@ -62,3 +62,17 @@ def test_velocity_estimate_increases_for_moving_drone():
     trk = list(t.tracks.values())[0]
     vx, vy = trk.velocity
     assert vx > 0  # moving in +x
+
+
+def test_external_track_id_is_preserved_when_present():
+    t = Tracker(iou_thresh=0.1, max_misses=2)
+    t.update("cam-1", 0.0, [
+        {"cls": "drone", "confidence": 0.8, "bbox": [0, 0, 10, 10], "track_id": "cairn-7"},
+    ])
+    t.update("cam-1", 1.0, [
+        {"cls": "drone", "confidence": 0.9, "bbox": [100, 100, 120, 120], "track_id": "cairn-7"},
+    ])
+
+    assert list(t.tracks) == ["cairn-7"]
+    assert t.tracks["cairn-7"].n_obs == 2
+    assert t.tracks["cairn-7"].max_conf == 0.9

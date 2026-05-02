@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { api, openAlertSocket } from "../lib/api";
 import type { Alert } from "../types";
+import CairnHealth from "./CairnHealth";
 
 interface BBoxOverlay {
   alertId: string;
@@ -41,6 +42,7 @@ export default function Live() {
     <div className="cards">
       <section className="card">
         <h3>Live monitor — cam-01</h3>
+        <CairnHealth />
         <div className="live-frame">
           <div className="empty">
             {healthy === false

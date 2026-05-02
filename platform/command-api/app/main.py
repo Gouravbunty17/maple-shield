@@ -26,6 +26,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from .models import Alert, Incident, IncidentStatus, Severity
+from .routers import cairn_health
 from .store import Store
 
 
@@ -61,6 +62,8 @@ app.add_middleware(
     allow_headers=["*"],
     allow_credentials=False,
 )
+
+app.include_router(cairn_health.router)
 
 
 # ---------- request bodies ----------

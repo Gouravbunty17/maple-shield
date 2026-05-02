@@ -36,6 +36,11 @@ A synthetic sample feed is shipped under `samples/`. The default detector is a
 deterministic mock that reproduces a stable trajectory across the frame so
 the demo is repeatable.
 
+Phase 2 adds `edge_agent.cairn_adapter.CairnSourceDetector`, which bridges the
+repo's existing `cairn_engine` package into the same detector contract. The
+mock remains the CI default; CAIRN integration details live in
+`docs/CAIRN_INTEGRATION.md`.
+
 ## Lawful use
 
 Set `MAPLE_SHIELD_LAWFUL_USE_ACK=true` in the deployment environment after

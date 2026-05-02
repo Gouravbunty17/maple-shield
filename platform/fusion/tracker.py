@@ -5,8 +5,12 @@ bbox and a velocity. New detections are associated greedily by IoU within a
 configurable threshold. Tracks that go un-observed for `max_misses` updates
 are retired.
 
+When an upstream engine (e.g. CAIRN) provides its own track ids, those are
+preserved verbatim and the IoU matcher is bypassed for that detection. This
+keeps a single source of truth for track identity across the platform.
+
 Deliberately simple: this is a passive monitoring component. There are no
-prediction-into-target operations, no engagement, no targeting — only an
+prediction-into-target operations, no engagement, no targeting - only an
 estimator over observed locations.
 """
 
@@ -60,28 +64,57 @@ class Tracker:
         self.smoothing = smoothing  # exponential smoothing weight on new bbox
         self.tracks: dict[str, Track] = {}
 
+    def _apply_detection(self, trk: Track, d: dict, ts: float) -> None:
+        """Update a track in place from a single detection."""
+        old_cx, old_cy = trk.center
+        a = self.smoothing
+        nb = tuple(a * d["bbox"][i] + (1 - a) * trk.bbox[i] for i in range(4))
+        trk.bbox = nb  # type: ignore[assignment]
+        new_cx, new_cy = trk.center
+        dt = max(1e-3, ts - trk.last_seen)
+        trk.velocity = ((new_cx - old_cx) / dt, (new_cy - old_cy) / dt)
+        trk.last_seen = ts
+        trk.last_conf = float(d["confidence"])
+        trk.max_conf = max(trk.max_conf, float(d["confidence"]))
+        trk.n_obs += 1
+        trk.misses = 0
+
     def update(self, camera_id: str, ts: float,
                detections: List[dict]) -> List[Track]:
         """Associate detections to existing tracks, return all live tracks.
 
-        `detections` is a list of {bbox, confidence, cls}. Only `drone` class
-        is accepted; anything else is ignored as a defensive measure.
+        `detections` is a list of {bbox, confidence, cls, track_id?}. Only
+        `drone` class is accepted; anything else is ignored as a defensive
+        measure.
         """
         unmatched_dets = list(range(len(detections)))
-        for det in detections:
-            if det.get("cls") != "drone":
-                # defensive; the model contract restricts class but we
-                # double-check at runtime.
-                continue
 
-        # Greedy IoU matching: for each track, take the best unmatched detection
+        # If an upstream engine supplied a stable track id, honour it before
+        # the IoU matcher considers anything.
+        externally_updated: set[str] = set()
+        for di in list(unmatched_dets):
+            d = detections[di]
+            if d.get("cls") != "drone" or not d.get("track_id"):
+                continue
+            tid = str(d["track_id"])
+            trk = self.tracks.get(tid)
+            if trk is None or trk.camera_id != camera_id:
+                continue
+            self._apply_detection(trk, d, ts)
+            externally_updated.add(tid)
+            unmatched_dets.remove(di)
+
+        # Greedy IoU matching for the remaining unmatched detections that
+        # don't carry an external track id.
         for tid, trk in list(self.tracks.items()):
+            if tid in externally_updated:
+                continue
             if trk.camera_id != camera_id:
                 continue
             best_idx, best_iou = -1, 0.0
             for di in list(unmatched_dets):
                 d = detections[di]
-                if d.get("cls") != "drone":
+                if d.get("cls") != "drone" or d.get("track_id"):
                     continue
                 cand = iou(trk.bbox, tuple(d["bbox"]))
                 if cand > best_iou:
@@ -89,29 +122,18 @@ class Tracker:
                     best_idx = di
             if best_iou >= self.iou_thresh and best_idx >= 0:
                 d = detections[best_idx]
-                old_cx, old_cy = trk.center
-                # exponentially smooth the bbox
-                a = self.smoothing
-                nb = tuple(a * d["bbox"][i] + (1 - a) * trk.bbox[i] for i in range(4))
-                trk.bbox = nb  # type: ignore[assignment]
-                new_cx, new_cy = trk.center
-                dt = max(1e-3, ts - trk.last_seen)
-                trk.velocity = ((new_cx - old_cx) / dt, (new_cy - old_cy) / dt)
-                trk.last_seen = ts
-                trk.last_conf = float(d["confidence"])
-                trk.max_conf = max(trk.max_conf, float(d["confidence"]))
-                trk.n_obs += 1
-                trk.misses = 0
+                self._apply_detection(trk, d, ts)
                 unmatched_dets.remove(best_idx)
             else:
                 trk.misses += 1
 
-        # any remaining unmatched detections become new tracks
+        # any remaining unmatched detections become new tracks. If the
+        # detection carries a track_id, preserve it verbatim.
         for di in unmatched_dets:
             d = detections[di]
             if d.get("cls") != "drone":
                 continue
-            tid = f"trk-{uuid4().hex[:8]}"
+            tid = str(d.get("track_id") or f"trk-{uuid4().hex[:8]}")
             self.tracks[tid] = Track(
                 track_id=tid, camera_id=camera_id,
                 bbox=tuple(d["bbox"]),
