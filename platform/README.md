@@ -27,6 +27,8 @@ target, or otherwise interfere with drones. See `docs/SCOPE.md` and
 ```bash
 make setup          # python deps + npm i
 make dev            # all services + Vite dev server
+make demo           # local demo launcher with mock fallback
+make smoke-demo     # bounded local service smoke test
 make test           # pytest + UI build + compliance grep
 ```
 
@@ -35,6 +37,8 @@ Open http://localhost:5173 (operator-ui), the API is at http://localhost:8080.
 A synthetic sample feed is shipped under `samples/`. The default detector is a
 deterministic mock that reproduces a stable trajectory across the frame so
 the demo is repeatable.
+
+For a guided demo flow, see `docs/DEMO.md`.
 
 Phase 2 adds `edge_agent.cairn_adapter.CairnSourceDetector`, which bridges the
 repo's existing `cairn_engine` package into the same detector contract. The
