@@ -39,6 +39,8 @@ Thumbs.db
 
 # Maple Shield generated assets
 runs/*/
+platform/.demo-logs/
+platform/docs/CONTEXT_SAVED.md
 datasets/maritime_sample/
 datasets/arctic_maritime/
 datasets/seaships/

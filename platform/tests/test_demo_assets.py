@@ -38,3 +38,13 @@ def test_smoke_runner_is_documented_and_make_wired():
     assert "smoke-demo" in makefile
     assert "scripts/smoke_demo.py" in makefile
     assert "audit_verified" in smoke
+
+
+def test_browser_demo_qa_is_documented():
+    demo = (ROOT / "docs" / "DEMO.md").read_text(encoding="utf-8")
+    qa = (ROOT / "docs" / "DEMO_QA.md").read_text(encoding="utf-8")
+
+    assert "platform/docs/DEMO_QA.md" in demo
+    assert "http://127.0.0.1:5173" in demo
+    assert "Browser-visible demo QA passed" in qa
+    assert "Audit chain" in qa

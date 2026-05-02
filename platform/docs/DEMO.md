@@ -58,6 +58,15 @@ audit chain, then shuts the services down.
 Logs are written to `platform/.demo-logs/`. Press `Ctrl+C` in the launcher
 terminal to stop all demo processes.
 
+## Browser QA Evidence
+
+The latest browser-visible route check is documented in
+`platform/docs/DEMO_QA.md`. It records the local stack URLs, seeded mock feed,
+API evidence, and the operator UI routes verified with headless Chrome.
+
+Use `http://127.0.0.1:5173` for this QA pass when another local Vite app is
+already bound to the IPv6 `localhost` route.
+
 ## Dry Run
 
 Use dry run mode when you only want to inspect the commands:
