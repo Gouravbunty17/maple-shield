@@ -1,0 +1,27 @@
+enabled: true
+root_dir: data/hard_examples
+metadata_jsonl: data/hard_examples/metadata.jsonl
+max_examples: 5000
+quorum_size: 2
+min_free_bytes: 268435456
+uncertain_min_confidence: 0.3
+uncertain_max_confidence: 0.7
+public_keys_dir: keys/operators
+queue_size: 256
+
+adversarial_detector:
+  enabled: false
+  engine_path: models/adversarial_patch_cnn.engine
+  threshold: 0.8
+  min_confidence: 0.7
+  input_size: 64
+  latency_budget_ms_per_roi: 10
+  execution_provider: tensorrt_int8
+
+model_updates:
+  package_dir: updates/incoming
+  public_key_path: keys/deployment/deployment.pub
+  engine_path: models/yolov8n_current.engine
+  version_path: models/yolov8n_current.version
+  check_period_seconds: 3600
+  require_signature: true

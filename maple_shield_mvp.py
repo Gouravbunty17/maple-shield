@@ -30,6 +30,7 @@ from threat_scorer import (
     ScorerConfig, ThreatLevel, score_detection, ScoredDetection
 )
 from maple_shield_mqtt import AlertPublisher
+from maple_shield_cot import CotPublisher, CotConfig
 
 # ---------------------------------------------------------------------------
 # COCO labels
@@ -283,6 +284,10 @@ def main(source, model_path: str, runs_dir: Path):
     )
     mqtt_pub.connect()
 
+    # CoT UDP publisher (ATAK / WinTAK / TAK Server)
+    cot_pub = CotPublisher(CotConfig(frame_w=fw, frame_h=fh))
+    cot_pub.start()
+
     log_path = run_dir / "detections.jsonl"
     log_f = open(log_path, "w", encoding="utf-8")
 
@@ -356,6 +361,9 @@ def main(source, model_path: str, runs_dir: Path):
         # MQTT: publish threat escalation alerts to C2
         mqtt_pub.on_frame(frame_id, scored, max_threat.label(), fps, kernel_mode.name)
 
+        # CoT: broadcast NATO-compatible CoT XML to ATAK / TAK Server
+        cot_pub.on_frame(frame_id, scored, run_dir.name, fps)
+
         if frame_id % LOG_EVERY_N == 0:
             log_f.write(json.dumps({
                 "ts": ts, "frame": frame_id, "infer_ms": infer_ms, "fps": fps,
@@ -371,8 +379,10 @@ def main(source, model_path: str, runs_dir: Path):
 
     log_f.close(); cap.release(); writer.release(); cv2.destroyAllWindows()
     mqtt_pub.disconnect()
+    cot_pub.stop()
     print(f"\nRun saved → {run_dir}")
     print(f"  MQTT alerts published : {mqtt_pub.alerts_published}")
+    print(f"  CoT events sent       : {cot_pub.events_sent}")
 
 
 if __name__ == "__main__":

@@ -18,6 +18,16 @@ flask>=3.0.0
 # MQTT alert export (optional — graceful fallback if not installed)
 paho-mqtt>=1.6.1
 
+# Configuration, secure mesh sync, and signed update packages
+PyYAML>=6.0.0                  # YAML edge/geofence configs
+cryptography>=42.0.0           # Ed25519 mesh sync and signed update verification
+
+# Data augmentation
+scikit-image>=0.19.0           # Arctic/weather augmentation helpers
+
 # Utilities
 tqdm>=4.65.0                  # Progress bars for training
 Pillow>=10.0.0                # Image utilities
+
+# Test runner
+pytest>=8.0.0

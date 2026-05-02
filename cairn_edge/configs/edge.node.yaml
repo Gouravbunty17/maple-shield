@@ -1,0 +1,126 @@
+node:
+  id: cairn-edge-node-001
+  role: perimeter_passive_detection
+  air_gapped_default: true
+  retention_days: 14
+
+hardware:
+  target: jetson_orin_nano_8gb
+  power_profile: 15w_maxn
+  steady_state_watt_target: 12
+  degraded_watt_target_10w_mode: 8
+  usable_pipeline_memory_gb: 5.5
+  nvdec_enabled: true
+  nvenc_available: false
+
+video_ingest:
+  mode: rtsp
+  streams:
+    - id: cam01
+      uri: rtsp://user:password@192.168.1.101/stream1
+      width: 1920
+      height: 1080
+      target_fps: 15
+      sky_roi: [0.0, 0.0, 1.0, 0.65]
+    - id: cam02
+      uri: rtsp://user:password@192.168.1.102/stream1
+      width: 1920
+      height: 1080
+      target_fps: 15
+      sky_roi: [0.0, 0.0, 1.0, 0.65]
+  gstreamer:
+    use_nvdec: true
+    zero_copy_nvmm: true
+    latency_ms: 120
+    drop_on_latency: true
+
+inference:
+  detector:
+    model_family: yolov8n
+    onnx_path: models/maple_shield_drone_v1_dense.onnx
+    tensorrt_engine_path: models/cairn_edge_yolov8n_int8.engine
+    input_size: 640
+    precision: int8
+    calibration_frames_minimum: 2000
+    conf_threshold: 0.35
+    iou_threshold: 0.45
+    max_detections_per_frame: 50
+  verifier:
+    enabled: true
+    model_family: mobilevit_distilled
+    precision: fp16
+    run_only_on_ambiguous_tracks: true
+    max_verifications_per_second: 8
+  tiling:
+    enabled: true
+    grid: 2x2
+    sky_only: true
+    motion_gated: true
+    min_motion_energy: 0.015
+  scheduling:
+    detector_interval_frames: 3
+    optical_flow_track_propagation: true
+    dynamic_batching: true
+    max_batch_latency_ms: 80
+
+tracking:
+  tracker: bytetrack_light
+  use_reid_embeddings: false
+  max_tracks: 64
+  contractual_swarm_capacity: 32
+  kalman_model: constant_velocity_with_accel_switch
+  track_ttl_frames: 45
+  min_confirmed_hits: 3
+  lookahead_seconds: 3
+
+cairn_risk:
+  config_path: configs/cairn.default.json
+  roe_config_path: cairn_edge/configs/roe.default.yaml
+  cooperative_aircraft_whitelist:
+    adsb_enabled: false
+    remote_id_enabled: false
+    source: network_or_usb_sdr
+
+outputs:
+  cot:
+    enabled: true
+    transport: udp
+    targets:
+      - host: 239.2.3.1
+        port: 6969
+  mqtt:
+    enabled: true
+    broker: localhost
+    port: 1883
+    topic_prefix: cairn_edge/node001
+  rest:
+    enabled: true
+    bind: 0.0.0.0
+    port: 8080
+  evidence:
+    raw_ring_buffer_enabled: true
+    overlay_export_enabled: true
+    klv_metadata_enabled: false
+    stanag_4609_export_enabled: false
+    note: software_encode_only_on_orin_nano_no_nvenc
+
+resilience:
+  sqlite_path: data/cairn_edge/events.sqlite
+  jsonl_dir: runs
+  store_and_forward: true
+  peer_sync_enabled: false
+  watchdog_enabled: true
+  graceful_degradation:
+    thermal_c: 78
+    steps:
+      - reduce_detector_fps
+      - disable_verifier
+      - single_stream_mode
+      - log_only_mode
+
+security:
+  outbound_calls_allowed: false
+  signed_model_required: true
+  sbom_required_per_release: true
+  disk_encryption_required_in_production: true
+  secure_boot_required_in_production: true
