@@ -35,6 +35,24 @@ The adapter preserves CAIRN track ids with a `cairn-` prefix and drops all
 non-drone object types before fusion. Check `GET /cairn/health` from the
 command-api to confirm engine version, compatibility, runtime, and frame count.
 
+For a YOLO ONNX provider, keep the rest of the stack unchanged and run the
+edge agent with:
+
+```bash
+cd edge-agent
+python -m edge_agent.main \
+  --source path/to/sample.mp4 \
+  --detector cairn-yolo \
+  --yolo-model path/to/drone-detector.onnx \
+  --yolo-classes drone \
+  --fusion http://localhost:8090
+```
+
+`--detector mock` remains the default for CI and repeatable demos. The YOLO path
+requires an ONNX model whose labels include `drone`; pass labels as a comma
+list (`--yolo-classes drone`) or a newline-delimited file path. Other model
+labels are filtered before they reach CAIRN.
+
 ## Backups and retention
 
 - SQLite file location: `MAPLE_SHIELD_DB` env var (default `:memory:`).
