@@ -5,6 +5,13 @@
 > stays defensible. Where a claim is not yet supported in the repo we say
 > so out loud.
 
+Companion artifacts:
+
+- `docs/NATO_IC26_REPO_ALIGNED_RESPONSE.md` is a clean repo-aligned rewrite
+  of the NATO IC26 response.
+- `docs/NATO_IC26_CLAIM_ALIGNMENT_MATRIX.md` maps high-risk source-PDF claims
+  to repo-backed replacement language.
+
 ## Status legend
 
 | Label | Meaning |

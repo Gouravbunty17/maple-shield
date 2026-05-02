@@ -12,6 +12,8 @@ and `platform/docs/SCOPE.md` for hard product boundaries.
 
 - **Doc ↔ repo alignment (every claim mapped to evidence):** [docs/DOC_REPO_ALIGNMENT.md](docs/DOC_REPO_ALIGNMENT.md)
 - **Demo validation (what the demo proves and does not prove):** [docs/DEMO_VALIDATION.md](docs/DEMO_VALIDATION.md)
+- **NATO IC26 repo-aligned response:** [docs/NATO_IC26_REPO_ALIGNED_RESPONSE.md](docs/NATO_IC26_REPO_ALIGNED_RESPONSE.md)
+- **NATO IC26 claim alignment matrix:** [docs/NATO_IC26_CLAIM_ALIGNMENT_MATRIX.md](docs/NATO_IC26_CLAIM_ALIGNMENT_MATRIX.md)
 - **CAIRN Engine v2:** [docs/CAIRN_ENGINE_V2.md](docs/CAIRN_ENGINE_V2.md)
 - **Documentation index:** [docs/README.md](docs/README.md)
 - **Changelog:** [CHANGELOG.md](CHANGELOG.md)
