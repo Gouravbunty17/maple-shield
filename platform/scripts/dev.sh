@@ -19,7 +19,7 @@ PIDS+=($!)
 sleep 1
 
 echo "[edge-agent] mock feed"
-( cd edge-agent && python -m edge_agent.main --source samples/mock --fusion http://localhost:8090 ) &
+( cd edge-agent && python -m edge_agent.main --source mock --fusion http://localhost:8090 ) &
 PIDS+=($!)
 
 echo "[operator-ui] :5173"
