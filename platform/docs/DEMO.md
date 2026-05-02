@@ -36,6 +36,25 @@ To preview the commands through Make without starting services:
 make demo DEMO_ARGS=--dry-run
 ```
 
+## Smoke Test
+
+Use the bounded smoke runner when you want proof that the local service path
+works without keeping the UI open:
+
+```bash
+python scripts/smoke_demo.py
+```
+
+Or, where `make` is available:
+
+```bash
+make smoke-demo
+```
+
+The smoke runner starts command-api and fusion-engine on random local ports,
+runs the mock edge-agent for a short burst, verifies alerts, incidents, and the
+audit chain, then shuts the services down.
+
 Logs are written to `platform/.demo-logs/`. Press `Ctrl+C` in the launcher
 terminal to stop all demo processes.
 

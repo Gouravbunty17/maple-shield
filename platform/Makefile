@@ -1,4 +1,4 @@
-.PHONY: setup dev demo test test-py test-ui test-compliance build-ui clean
+.PHONY: setup dev demo smoke-demo test test-py test-ui test-compliance build-ui clean
 
 PY := python3
 PIP := pip
@@ -19,6 +19,9 @@ demo:
 	else \
 		bash scripts/demo_live.sh $(DEMO_ARGS); \
 	fi
+
+smoke-demo:
+	$(PY) scripts/smoke_demo.py $(SMOKE_ARGS)
 
 test: test-compliance test-py build-ui
 	@echo "[OK] all checks passed"

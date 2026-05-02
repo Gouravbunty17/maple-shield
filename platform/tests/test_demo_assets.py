@@ -27,3 +27,14 @@ def test_demo_scripts_support_dry_run():
     assert "DryRun" in ps1
     assert "--dry-run" in sh
     assert "$(DEMO_ARGS)" in makefile
+
+
+def test_smoke_runner_is_documented_and_make_wired():
+    demo = (ROOT / "docs" / "DEMO.md").read_text(encoding="utf-8")
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    smoke = (ROOT / "scripts" / "smoke_demo.py").read_text(encoding="utf-8")
+
+    assert "python scripts/smoke_demo.py" in demo
+    assert "smoke-demo" in makefile
+    assert "scripts/smoke_demo.py" in makefile
+    assert "audit_verified" in smoke
