@@ -28,6 +28,7 @@ target, or otherwise interfere with drones. See `docs/SCOPE.md` and
 make setup          # python deps + npm i
 make dev            # all services + Vite dev server
 make demo           # local demo launcher with mock fallback
+make smoke-demo     # bounded local service smoke test
 make test           # pytest + UI build + compliance grep
 ```
 
