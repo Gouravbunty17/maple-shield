@@ -1,5 +1,6 @@
 import warnings
 
+import numpy as np
 from cairn_engine import CairnDetection, CairnEngine
 
 from edge_agent.cairn_adapter import (
@@ -50,6 +51,33 @@ def test_cairn_adapter_drops_ignore_class():
     )
 
     assert detector.detect(frame_idx=1, frame_w=640, frame_h=360) == []
+
+
+def test_cairn_adapter_accepts_frame_aware_provider():
+    seen = {}
+
+    def provide(frame_idx: int, frame, frame_w: int, frame_h: int):
+        seen["shape"] = frame.shape
+        seen["frame_idx"] = frame_idx
+        return [
+            CairnDetection(
+                track_id=99,
+                label="drone",
+                confidence=0.9,
+                box=[20, 20, 60, 60],
+                frame_w=frame_w,
+                frame_h=frame_h,
+                track_confirmed=True,
+                persistence_frames=12,
+            )
+        ]
+
+    detector = CairnSourceDetector(engine=CairnEngine(), detection_provider=provide)
+    detections = detector.detect_frame(frame_idx=12, frame=np.zeros((360, 640, 3), dtype=np.uint8))
+
+    assert seen == {"shape": (360, 640, 3), "frame_idx": 12}
+    assert len(detections) == 1
+    assert detections[0].track_id == "cairn-99"
 
 
 def test_cairn_version_warning_on_minor_drift():

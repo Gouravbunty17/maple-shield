@@ -10,6 +10,7 @@ from __future__ import annotations
 import re
 import sys
 import warnings
+import inspect
 from pathlib import Path
 from typing import Callable, Iterable, List, Optional, Tuple
 
@@ -30,7 +31,7 @@ from cairn_engine import __version__ as CAIRN_PACKAGE_VERSION  # noqa: E402
 
 
 EXPECTED_CAIRN_VERSION = "2.0.0-dev"
-CairnDetectionProvider = Callable[[int, int, int], Iterable[CairnDetection]]
+CairnDetectionProvider = Callable[..., Iterable[CairnDetection]]
 
 
 class CairnVersionWarning(RuntimeWarning):
@@ -85,7 +86,15 @@ class CairnSourceDetector:
         return []
 
     def detect(self, frame_idx: int, frame_w: int, frame_h: int) -> List[Detection]:
-        cairn_detections = list(self.detection_provider(frame_idx, frame_w, frame_h))
+        return self._detect(frame_idx, None, frame_w, frame_h)
+
+    def detect_frame(self, frame_idx: int, frame) -> List[Detection]:
+        """Run detection for sources that pass the actual frame object."""
+        frame_h, frame_w = frame.shape[:2]
+        return self._detect(frame_idx, frame, frame_w, frame_h)
+
+    def _detect(self, frame_idx: int, frame, frame_w: int, frame_h: int) -> List[Detection]:
+        cairn_detections = list(self._call_provider(frame_idx, frame, frame_w, frame_h))
         record = self.engine.process_frame(
             frame_id=frame_idx,
             detections=cairn_detections,
@@ -97,10 +106,10 @@ class CairnSourceDetector:
         self.last_record = record
         return [det for det in (self._to_platform_detection(risk) for risk in record.risks) if det]
 
-    def detect_frame(self, frame_idx: int, frame) -> List[Detection]:
-        """Convenience wrapper for sources that pass the actual frame object."""
-        frame_h, frame_w = frame.shape[:2]
-        return self.detect(frame_idx, frame_w, frame_h)
+    def _call_provider(self, frame_idx: int, frame, frame_w: int, frame_h: int):
+        if frame is not None and _provider_accepts_frame(self.detection_provider):
+            return self.detection_provider(frame_idx, frame, frame_w, frame_h)
+        return self.detection_provider(frame_idx, frame_w, frame_h)
 
     def _to_platform_detection(self, risk) -> Optional[Detection]:
         label = str(getattr(risk, "label", "")).strip().lower()
@@ -135,3 +144,20 @@ class CairnSourceDetector:
         if callable(classifier):
             return str(classifier(label)).strip().lower()
         return fallback.strip().lower()
+
+
+def _provider_accepts_frame(provider: CairnDetectionProvider) -> bool:
+    try:
+        signature = inspect.signature(provider)
+    except (TypeError, ValueError):
+        return True
+
+    parameters = list(signature.parameters.values())
+    if any(param.kind == inspect.Parameter.VAR_POSITIONAL for param in parameters):
+        return True
+    positional = [
+        param
+        for param in parameters
+        if param.kind in (inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD)
+    ]
+    return len(positional) >= 4
